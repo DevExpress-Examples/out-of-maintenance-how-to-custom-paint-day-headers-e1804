@@ -18,11 +18,11 @@ Namespace CustomDrawDayHeader
         Public Sub New()
             InitializeComponent()
 
-           schedulerControl1.Start = New Date(2008, 7, 11)
-           FillData()
+            schedulerControl1.Start = New Date(2008, 7, 11)
+            FillData()
         End Sub
 
-        #Region "FillData"
+#Region "FillData"
         Private Sub FillData()
             Dim customNameMapping As New AppointmentCustomFieldMapping("CustomName", "CustomName")
             Dim customStatusMapping As New AppointmentCustomFieldMapping("CustomStatus", "CustomStatus")
@@ -49,7 +49,7 @@ Namespace CustomDrawDayHeader
                 stream.Close()
             End Using
         End Sub
-        #End Region
+#End Region
 
         Private Sub schedulerStorage_AppointmentsChanged(ByVal sender As Object, ByVal e As PersistentObjectsEventArgs) Handles schedulerStorage1.AppointmentsChanged, schedulerStorage1.AppointmentsInserted, schedulerStorage1.AppointmentsDeleted
             schedulerStorage1.Appointments.Items.WriteXml(aptDataFileName)
@@ -62,20 +62,23 @@ Namespace CustomDrawDayHeader
                 RemoveHandler schedulerControl1.CustomDrawDayHeader, AddressOf schedulerControl1_CustomDrawDayHeader
             End If
             schedulerControl1.Refresh()
-
         End Sub
 #Region "#customdrawdayheader"
-Private Sub schedulerControl1_CustomDrawDayHeader(ByVal sender As Object, ByVal e As CustomDrawObjectEventArgs)
-    Dim header As DayHeader = TryCast(e.ObjectInfo, DayHeader)
-    ' Draws the outer rectangle.
-    e.Cache.FillRectangle(New LinearGradientBrush(e.Bounds, Color.LightBlue, Color.Blue, LinearGradientMode.Vertical), e.Bounds)
-    Dim innerRect As Rectangle = Rectangle.Inflate(e.Bounds, -2, -2)
-    ' Draws the inner rectangle.
-    e.Cache.FillRectangle(New LinearGradientBrush(e.Bounds, Color.Blue, Color.LightSkyBlue, LinearGradientMode.Vertical), innerRect)
-    ' Draws the header's caption.
-    e.Cache.DrawString(header.Caption, header.Appearance.HeaderCaption.Font, New SolidBrush(Color.White), innerRect, header.Appearance.HeaderCaption.GetStringFormat())
-    e.Handled = True
-End Sub
+        Private Sub schedulerControl1_CustomDrawDayHeader(ByVal sender As Object, ByVal e As CustomDrawObjectEventArgs)
+            Dim header As DayHeader = TryCast(e.ObjectInfo, DayHeader)
+            ' Draws the outer rectangle.
+            Using backBrush = New LinearGradientBrush(e.Bounds, Color.LightBlue, Color.Blue, LinearGradientMode.Vertical)
+                e.Cache.FillRectangle(backBrush, e.Bounds)
+            End Using
+            Dim innerRect As Rectangle = Rectangle.Inflate(e.Bounds, -2, -2)
+            ' Draws the inner rectangle.
+            Using backBrush = New LinearGradientBrush(e.Bounds, Color.Blue, Color.LightSkyBlue, LinearGradientMode.Vertical)
+                e.Cache.FillRectangle(backBrush, innerRect)
+            End Using
+            ' Draws the header's caption.
+            e.Cache.DrawString(header.Caption, header.Appearance.HeaderCaption.Font, Brushes.White, innerRect, header.Appearance.HeaderCaption.GetStringFormat())
+            e.Handled = True
+        End Sub
 #End Region ' #customdrawdayheader
     End Class
 End Namespace
